@@ -1,0 +1,78 @@
+<odoo>
+    <template id="slide_content_detailed_replace_button" inherit_id="website_slides_survey.slide_content_detailed" priority="9999">
+        <xpath expr="//div[hasclass('o_wslides_lesson_content_type')]" position="replace">
+            <div class="o_wslides_lesson_content_type">
+                <t t-if="slide.slide_type == 'certification' and slide.is_auto_pass_certification">
+                    <t t-if="not channel_progress[slide.id].get('completed')">
+                        <div class="card mb-4 border-success shadow-sm mt-4">
+                            <div class="card-body text-center py-5">
+                                <h2 class="h3 font-weight-bold text-success">Certificación Automatizada</h2>
+                                <p class="text-muted">Se emitirá automáticamente al finalizar los contenidos.</p>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="col mt32 mb8 d-flex justify-content-center">
+                            <a role="button" class="btn btn-success btn-lg px-4" t-attf-href="/survey/#{slide.survey_id.id}/get_certification">
+                                <i class="fa fa-fw fa-trophy" role="img"/> Descargar mi Certificación
+                            </a>
+                        </div>
+                    </t>
+                </t>
+                <t t-else="">
+                    <t t-if="slide.slide_type == 'certification'">
+                         <div t-if="not channel_progress[slide.id].get('completed')" class="col mt32 mb8 d-flex justify-content-center">
+                            <a role="button" class="btn btn-primary btn-lg" t-attf-href="/slides_survey/slide/get_certification_url?slide_id=#{slide.id}">Comenzar certificación</a>
+                        </div>
+                        <div t-else="" class="col mt32 mb8 d-flex justify-content-center">
+                            <a role="button" class="btn btn-primary btn-lg" t-attf-href="/survey/#{slide.survey_id.id}/get_certification">Descargar certificación</a>
+                        </div>
+                    </t>
+                    <t t-else=""><t t-raw="0"/></t>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="slide_fullscreen_auto_refresh" inherit_id="website_slides.slide_fullscreen">
+        <xpath expr="." position="inside">
+            <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function() {
+                    var progressBar = document.querySelector('.o_wslides_fs_header .progress-bar') || document.querySelector('.progress-bar');
+                    if (progressBar) {
+                        var observer = new MutationObserver(function() {
+                            var val = progressBar.getAttribute('aria-valuenow');
+                            if (!val &amp;&amp; progressBar.style.width) val = progressBar.style.width.replace('%', '');
+                            if (val &amp;&amp; parseFloat(val) &gt;= 100) {
+                                observer.disconnect();
+                                setTimeout(function() { window.location.reload(); }, 2000);
+                            }
+                        });
+                        observer.observe(progressBar, { attributes: true, attributeFilter: ['aria-valuenow', 'style'] });
+                    }
+                });
+            </script>
+        </xpath>
+    </template>
+
+<template id="hide_odoo_button_fullscreen" inherit_id="website_slides.slide_fullscreen">
+    <xpath expr="//div[hasclass('o_wslides_fs_content')]" position="inside">
+        <t t-if="slide.is_auto_pass_certification">
+            <style>
+                /* Esto oculta el botón verde que Odoo mete por JS */
+                .o_wslides_fs_run_quiz, 
+                #o_wslides_fs_content_certification,
+                .o_wslides_js_lesson_quiz_container {
+                    display: none !important;
+                }
+            </style>
+            <div class="d-flex flex-column align-items-center justify-content-center text-white w-100 h-100" style="background: #1a1a1a;">
+                <i class="fa fa-certificate fa-5x text-success mb-4"/>
+                <h2 class="text-success">Certificación Automática</h2>
+                <p class="lead">Este certificado se generará al completar todas las lecciones.</p>
+            </div>
+        </t>
+    </xpath>
+</template>
+
+</odoo>
